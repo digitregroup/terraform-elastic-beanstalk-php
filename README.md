@@ -38,7 +38,7 @@ variable "service_name" {
 ## AWS config
 ##################################################
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 
@@ -46,7 +46,7 @@ provider "aws" {
 ## Elastic Beanstalk config
 ##################################################
 resource "aws_elastic_beanstalk_application" "eb_app" {
-  name        = "${var.service_name}"
+  name        = var.service_name
   description = "My awesome nodeJs App"
 }
 ```
@@ -58,12 +58,12 @@ resource "aws_elastic_beanstalk_application" "eb_app" {
 ## Elastic Beanstalk config
 ##################################################
 module "eb_env" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//eb-env"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//eb-env"
+  aws_region = var.aws_region
 
   # Application settings
-  env = "${var.env}"
-  service_name = "${var.service_name}"
+  env = var.env
+  service_name = var.service_name
   service_description = "My awesome php App"
   
   # PHP settings
@@ -101,12 +101,12 @@ Add to the previous script the following lines:
 ## Route53 config
 ##################################################
 module "app_dns" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//r53-alias"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//r53-alias"
+  aws_region = var.aws_region
 
   domain = "example.io"
   domain_name = "my-app.example.io"
-  eb_cname = "${module.eb_env.eb_cname}"
+  eb_cname = module.eb_env.eb_cname
 }
 ``` 
 
@@ -126,9 +126,9 @@ resource "aws_efs_file_system" "file_storage" {
 }
 
 resource "aws_efs_mount_target" "file_storage_target" {
-  file_system_id  = "${aws_efs_file_system.file_storage.id}"
-  subnet_id       = "${var.vpc_subnets}"
-  security_groups = ["${var.security_groups}"]
+  file_system_id  = aws_efs_file_system.file_storage.id
+  subnet_id       = var.vpc_subnets
+  security_groups = [var.security_groups]
 }
 ```
 
@@ -138,12 +138,12 @@ resource "aws_efs_mount_target" "file_storage_target" {
 ## Elastic Beanstalk config
 ##################################################
 module "eb_env" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//eb-env"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//eb-env"
+  aws_region = var.aws_region
 
   # Application settings
-  env = "${var.env}"
-  service_name = "${var.service_name}"
+  env = var.env
+  service_name = var.service_name
   service_description = "My awesome php App"
   
   # PHP settings
@@ -171,7 +171,7 @@ module "eb_env" {
   security_groups = "sg-xxxxxxx"
   
   # EFS
-  efs_id="${aws_efs_file_system.file_storage.id}"
+  efs_id=aws_efs_file_system.file_storage.id
   efs_mount_directory="/var/app/efs"
 }
 ```

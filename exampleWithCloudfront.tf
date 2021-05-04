@@ -23,7 +23,7 @@ variable "domain_name" {
 ## AWS config
 ##################################################
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 
@@ -31,17 +31,17 @@ provider "aws" {
 ## Elastic Beanstalk config
 ##################################################
 resource "aws_elastic_beanstalk_application" "eb_app" {
-  name        = "${var.service_name}"
+  name        = var.service_name
   description = "My awesome nodeJs App"
 }
 
 module "env" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//eb-env"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//eb-env"
+  aws_region = var.aws_region
 
   # Application settings
-  service_name = "${var.service_name}"
-  env = "${var.env}"
+  service_name = var.service_name
+  env = var.env
 
   # PHP settings
   php_version = "7.0"
@@ -75,23 +75,23 @@ module "env" {
 ## CloudFront
 ##################################################
 module "app_cdn" {
-  source              = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//cloudfront"
+  source              = "github.com/digitregroup/terraform-elastic-beanstalk-php//cloudfront"
 
-  service_name        = "${var.service_name}"
-  env                 = "${var.env}"
-  origin_domain_name  = "${module.env.eb_cname}"
-  domain_name         = "${var.domain_name}"
+  service_name        = var.service_name
+  env                 = var.env
+  origin_domain_name  = module.env.eb_cname
+  domain_name         = var.domain_name
 }
 
 ##################################################
 ## Route53
 ##################################################
 module "app_dns" {
-  source      = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//r53-alias"
-  aws_region  = "${var.aws_region}"
+  source      = "github.com/digitregroup/terraform-elastic-beanstalk-php//r53-alias"
+  aws_region  = var.aws_region
 
   domain              = "example.io"
-  domain_name         = "${var.domain_name}"
-  eb_cname            = "${module.app_cdn.cf_cname}"
-  eb_route53_zone_id  = "${module.app_cdn.cf_hosted_zone_id}"
+  domain_name         = var.domain_name
+  eb_cname            = module.app_cdn.cf_cname
+  eb_route53_zone_id  = module.app_cdn.cf_hosted_zone_id
 }

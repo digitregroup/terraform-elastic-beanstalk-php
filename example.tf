@@ -19,7 +19,7 @@ variable "service_name" {
 ## AWS config
 ##################################################
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 
@@ -27,17 +27,17 @@ provider "aws" {
 ## Elastic Beanstalk config
 ##################################################
 resource "aws_elastic_beanstalk_application" "eb_app" {
-  name        = "${var.service_name}"
+  name        = var.service_name
   description = "My awesome nodeJs App"
 }
 
 module "env" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//eb-env"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//eb-env"
+  aws_region = var.aws_region
 
   # Application settings
-  service_name = "${var.service_name}"
-  env = "${var.env}"
+  service_name = var.service_name
+  env = var.env
 
   # PHP settings
   php_version = "7.0"
@@ -87,10 +87,10 @@ module "env" {
 ## Route53 config
 ##################################################
 module "app_dns" {
-  source = "github.com/BasileTrujillo/terraform-elastic-beanstalk-php//r53-alias"
-  aws_region = "${var.aws_region}"
+  source = "github.com/digitregroup/terraform-elastic-beanstalk-php//r53-alias"
+  aws_region = var.aws_region
 
   domain = "example.io"
   domain_name = "app-test.example.io"
-  eb_cname = "${module.env.eb_cname}"
+  eb_cname = module.env.eb_cname
 }

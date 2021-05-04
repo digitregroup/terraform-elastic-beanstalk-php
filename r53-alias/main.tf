@@ -6,14 +6,14 @@ data "aws_route53_zone" "dns_zone" {
 }
 
 resource "aws_route53_record" "dns_record" {
-  zone_id = "${data.aws_route53_zone.dns_zone.id}"
+  zone_id = data.aws_route53_zone.dns_zone.id
 
-  name = "${var.domain_name}"
+  name = var.domain_name
   type = "A"
 
   alias {
-    name                   = "${var.eb_cname}"
-    zone_id                = "${var.eb_route53_zone_id}"
+    name                   = var.eb_cname
+    zone_id                = var.eb_route53_zone_id
     evaluate_target_health = true
   }
 }
